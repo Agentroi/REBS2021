@@ -37,6 +37,8 @@ class Event{
         this.includes = new Set();
         this.excludes = new Set();
     }
+    
+    
 
     get isSubProcess() 
     {
@@ -137,8 +139,23 @@ class Event{
 		return (!(this.marking.pending && this.marking.included));		
 	}    
 
-
+    
 }
+
+Event.prototype.printRelations = function() {
+    console.log(`Event: ${this.name} (${this.label})`);
+    console.log('Conditions:');
+    this.conditions.forEach(r => console.log(`  Must wait for ${r.src.name} to execute${r.delay ? " after " + r.delay + " time units" : ""}`));
+    console.log('Responses:');
+    this.respones.forEach(r => console.log(`  Triggers ${r.trg.name} to execute${r.deadline ? " with a deadline of " + r.deadline + " time units" : ""}`));
+    console.log('Inclusions:');
+    this.includes.forEach(r => console.log(`  Includes ${r.trg.name}`));
+    console.log('Exclusions:');
+    this.excludes.forEach(r => console.log(`  Excludes ${r.trg.name}`));
+    console.log('Milestones:');
+    this.milestones.forEach(r => console.log(`  Blocks ${r.src.name} if pending`));
+}
+
 
 class DCRGraph {
     parent = undefined;

@@ -18,6 +18,27 @@ function updateAccepting(status) {
     document.getElementById("accepting").innerHTML = (status ? "Accepting" : "Not accepting");
 }
 
+function relationsList(graph) {
+    const list = []
+    for (var evt of graph.events.values()) {
+        //console.log(evt)
+        evt.respones.forEach(r => list.push(JSON.stringify([evt.name,"resp",r.trg.name])));
+        evt.includes.forEach(r => list.push(JSON.stringify([evt.name,"incl",r.trg.name])));
+        evt.excludes.forEach(r => list.push(JSON.stringify([evt.name,"excl",r.trg.name])));
+    }
+    console.log(list);
+    return list;
+}
+
+function compliance(l1, l2) {
+    for (let i = 0; i < l2.length; i++) {
+        if (!l1.includes(l2[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 $(document).ready(function(e) {    
     taskTable = dynamicTable.config('task-table', 
     ['executed', 'included', 'pending', 'enabled', 'name'], 
@@ -34,7 +55,7 @@ $(document).ready(function(e) {
         }
         catch(err)
         {
-            document.getElementById("parse-error").innerHTML = err.message + "</br>" + JSON.stringify(err.location);
+            document.getElementById("parse-error").innerHTML = "Box 1 Error </br>" + err.message + "</br>" + JSON.stringify(err.location);
         }
     });         
 
@@ -72,7 +93,7 @@ $(document).ready(function(e) {
 
             document.getElementById("log-details").innerHTML += "Events: " + count_events + " </br>";
             document.getElementById("log-details").innerHTML += "Cases: " + cases.size + " </br>";
-            document.getElementById("log-details").innerHTML += "Acitivites: </br>";
+            document.getElementById("log-details").innerHTML += "Activities: </br>";
             for (var a of activities)
             {
                 document.getElementById("log-details").innerHTML += a + "</br>";
@@ -82,7 +103,26 @@ $(document).ready(function(e) {
         {
             document.getElementById("parse-error").innerHTML = err.message + "</br>" + JSON.stringify(err.location);
         }
-    });         
+    });        
+    
+    $('#ta-dcr2').keyup(function(e) {
+        var x = document.getElementById("ta-dcr2");
+        try {
+            graph2 = parser.parse(x.value);
+            
+            l1 = relationsList(graph1)
+            l2 = relationsList(graph2)
+            if (compliance(l1, l2)) {
+                document.getElementById("compliance-result").innerHTML = "Graphs are compliant!";
+            } else {
+                document.getElementById("compliance-result").innerHTML = "Graphs are NOT compliant!";
+            }
+            
+            document.getElementById("parse-error").innerHTML = "";
+        } catch (err) {
+            document.getElementById("parse-error").innerHTML = "Box 2 Error </br>" + err.message + "</br>" + JSON.stringify(err.location);
+        }
+    });
 
     
     try{
